@@ -3,6 +3,8 @@ import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 import 'features/saved_notes/services/hive_service.dart';
 
+import 'features/saved_notes/screens/saved_notes_screen.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -18,7 +20,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(body: Center(child: Text('AI Study Buddy'))),
+      home: SavedNotesScreen(),
+      // home: Scaffold(body: Center(child: Text('AI Study Buddy'))),
     );
   }
 }
