@@ -4,7 +4,9 @@ import '../../../models/study_note.dart';
 import '../services/hive_service.dart';
 
 class AddNoteScreen extends StatefulWidget {
-  const AddNoteScreen({super.key});
+  final StudyNote? note;
+
+  const AddNoteScreen({super.key, this.note});
 
   @override
   State<AddNoteScreen> createState() => _AddNoteScreenState();
@@ -18,6 +20,19 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   final _contentController = TextEditingController();
 
   bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final note = widget.note;
+
+    if (note != null) {
+      _titleController.text = note.title;
+      _topicController.text = note.topic;
+      _contentController.text = note.content;
+    }
+  }
 
   @override
   void dispose() {
@@ -37,20 +52,29 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     });
 
     try {
+      final existingNote = widget.note;
+
       final note = StudyNote(
+        id: existingNote?.id,
         title: _titleController.text.trim(),
         topic: _topicController.text.trim(),
         content: _contentController.text.trim(),
-        createdAt: DateTime.now(),
+        createdAt: existingNote?.createdAt ?? DateTime.now(),
       );
 
       await HiveService.saveNote(note);
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Note saved successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            existingNote == null
+                ? 'Note saved successfully!'
+                : 'Note updated successfully!',
+          ),
+        ),
+      );
 
       Navigator.pop(context, true);
     } catch (error) {
@@ -71,7 +95,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Study Note')),
+      appBar: AppBar(
+        title: Text(widget.note == null ? 'Add Study Note' : 'Edit Study Note'),
+      ),
       body: SafeArea(
         child: Form(
           key: _formKey,
